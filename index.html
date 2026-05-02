@@ -3,86 +3,53 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Aincrad Bypass • Auto Shortener</title>
+  <title>Aincrad Bypass</title>
   <style>
+    /* same dark cyberpunk styling */
     body, html {
-      margin: 0; padding: 0; height: 100%; background: linear-gradient(135deg, #0f0f0f, #1a0033);
-      color: #fff; font-family: 'Segoe UI', sans-serif; overflow: hidden;
-    }
-    .container {
-      height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      text-align: center; padding: 20px;
-    }
-    h1 {
-      font-size: 32px; margin-bottom: 10px; color: #ff00ff;
-      text-shadow: 0 0 15px #ff00ff;
-    }
-    .subtitle {
-      font-size: 18px; color: #00ffcc; margin-bottom: 40px;
+      margin: 0; padding: 0; height: 100%;
+      background: linear-gradient(135deg, #0f0f0f, #1a0033);
+      color: #fff; font-family: 'Segoe UI', sans-serif;
+      display: flex; align-items: center; justify-content: center;
     }
     .card {
-      background: rgba(0, 0, 0, 0.7); 
-      padding: 30px 40px; 
-      border-radius: 15px; 
+      background: rgba(0,0,0,0.7);
+      padding: 40px; border-radius: 15px;
       border: 2px solid #ff00ff;
-      max-width: 420px; 
-      box-shadow: 0 0 30px rgba(255, 0, 255, 0.4);
+      text-align: center; max-width: 400px;
+      box-shadow: 0 0 30px rgba(255,0,255,0.4);
     }
-    .status {
-      font-size: 20px; margin: 20px 0; color: #00ff88;
+    h1 { color: #ff00ff; text-shadow: 0 0 15px #ff00ff; }
+    .subtitle { color: #00ffcc; margin-bottom: 30px; }
+    #bypassBtn {
+      background: linear-gradient(45deg, #ff00ff, #00ffcc);
+      border: none; padding: 15px 40px;
+      font-size: 18px; font-weight: bold;
+      color: #000; border-radius: 30px;
+      cursor: pointer; transition: transform 0.2s;
     }
-    #timer {
-      font-size: 28px; font-weight: bold; color: #ffcc00;
-      text-shadow: 0 0 10px #ffcc00;
-    }
-    .info {
-      margin-top: 30px; font-size: 14px; color: #aaa;
-    }
-    .owner {
-      position: absolute; bottom: 15px; font-size: 15px; color: #ff00ff;
-    }
+    #bypassBtn:active { transform: scale(0.95); }
+    .info { margin-top: 20px; font-size: 13px; color: #aaa; }
   </style>
 </head>
 <body>
-
-  <div class="container">
-    <div class="card">
-      <h1>Aincrad Bypass</h1>
-      <p class="subtitle">Auto Shortener & Link Unlocker</p>
-      
-      <div class="status">Preparing automatic bypass...</div>
-      <div id="timer">90 seconds</div>
-      
-      <div class="info">
-        This website automatically handles Cloudflare verification + Continue button<br>
-        and forwards you to the final destination.
-      </div>
-    </div>
-
-    <div class="owner">
-      Made with ❤️ by <strong>hossain</strong> • Aincrad Bypass Tool
-    </div>
+  <div class="card">
+    <h1>Aincrad Bypass</h1>
+    <p class="subtitle">Auto Shortener & Link Unlocker</p>
+    <button id="bypassBtn" onclick="launchBypass()">🔓 Start Bypass</button>
+    <p class="info">Opens in secure WebView with auto-detection</p>
   </div>
 
   <script>
-    const targetUrl = "https://aincrad.decryptvpn.xyz/getkey";
-    let seconds = 90;
-    const timerEl = document.getElementById('timer');
-
-    const countdown = setInterval(() => {
-      seconds--;
-      if (timerEl) timerEl.textContent = seconds + " seconds";
-
-      if (seconds <= 0) {
-        clearInterval(countdown);
-        window.location.replace(targetUrl);
+    function launchBypass() {
+      // For Android WebView app: trigger native interface
+      if (window.AndroidBridge && window.AndroidBridge.openWebView) {
+        window.AndroidBridge.openWebView("https://aincrad.decryptvpn.xyz/getkey");
+      } else {
+        // Fallback for browser testing
+        alert("This button works only inside the Aincrad Bypass app!");
       }
-    }, 1000);
-
-    // Auto redirect after few seconds so user sees the interface first
-    setTimeout(() => {
-      window.location.replace(targetUrl);
-    }, 3200);
+    }
   </script>
 </body>
 </html>
