@@ -2,116 +2,104 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Loading...</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Aincrad Bypass</title>
   <style>
-    body, html { margin:0; padding:0; height:100%; overflow:hidden; background:#000; }
-    iframe { width:100%; height:100%; border:none; }
-    .loading {
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      color: #fff; font-family: sans-serif; text-align: center; z-index: 10;
+    body, html {
+      margin: 0; padding: 0; height: 100%; overflow: hidden; background: #000; color: #fff;
+      font-family: sans-serif;
     }
+    iframe {
+      width: 100%; height: 100%; border: none;
+    }
+    .loader {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      text-align: center; z-index: 100; display: none;
+    }
+    .loader.show { display: block; }
   </style>
 </head>
 <body>
 
-  <div class="loading" id="loader">
-    <div>Please wait while we prepare everything...</div>
-    <div id="status">Auto visiting target...</div>
+  <div class="loader show" id="loader">
+    <h2>Please wait...</h2>
+    <p id="status">Loading target page...</p>
   </div>
 
-  <iframe id="myFrame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" 
-          allow="fullscreen; clipboard-write"></iframe>
+  <iframe id="frame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"></iframe>
 
   <script>
-    const targetUrl = "https://aincrad.decryptvpn.xyz/getkey";
-    const iframe = document.getElementById('myFrame');
+    const target = "https://aincrad.decryptvpn.xyz/getkey";
+    const iframe = document.getElementById('frame');
     const loader = document.getElementById('loader');
+    const status = document.getElementById('status');
 
-    // Step 1: Load the target inside iframe
-    iframe.src = targetUrl;
+    iframe.src = target;
 
-    // Step 2: Once iframe loads, inject our powerful automation script
-    iframe.onload = () => {
+    iframe.onload = function() {
+      loader.classList.remove('show');
+      status.textContent = "Automation running...";
+
       try {
-        const win = iframe.contentWindow;
-        const doc = iframe.contentDocument || win.document;
-
-        // Hide loader
-        loader.style.display = "none";
-
-        // === YOUR AUTOMATION SCRIPT (heavily improved from the userscript you gave) ===
-        const automationScript = document.createElement('script');
-        automationScript.textContent = `
+        const script = iframe.contentDocument.createElement('script');
+        script.textContent = `
           (function() {
-            'use strict';
+            console.log("%c[Aincrad Bypass] Injected by AhyaWife", "color:#ff00ff;font-size:16px");
 
-            console.log("%cAhyaWife Automation Injected 🔥", "color:#ff00ff; font-size:18px");
-
-            // Function to find "Continue" button and auto click it
-            function autoClickContinue() {
-              const buttons = document.querySelectorAll('button, a, [role="button"]');
-              for (let btn of buttons) {
-                const text = (btn.textContent || btn.innerText || '').toLowerCase().trim();
-                if (text.includes('continue') || text.includes('proceed') || text.includes('next')) {
-                  console.log("Found Continue button, clicking...");
-                  setTimeout(() => btn.click(), 800);
+            function findContinue() {
+              const els = document.querySelectorAll('button, a, input[type="button"], [onclick], [role="button"]');
+              for (let el of els) {
+                const txt = (el.textContent || el.value || '').toLowerCase();
+                if (txt.includes('continue') || txt.includes('proceed') || txt.includes('next') || txt.includes('get link')) {
+                  el.click();
+                  console.log("Continue button clicked automatically");
                   return true;
                 }
               }
               return false;
             }
 
-            // Improved destination extractor
-            function extractDestination() {
+            function extractUrl() {
               const scripts = document.querySelectorAll('script');
-              for (let script of scripts) {
-                const txt = script.textContent || '';
-                if (txt.includes('destination') || txt.includes('url') || txt.includes('link')) {
-                  const match = txt.match(/["']?(https?:\/\/[^"']+)["']?/);
-                  if (match && match[1]) return match[1];
+              for (let s of scripts) {
+                const t = s.textContent || '';
+                if (t.length > 100) {
+                  let match = t.match(/https?:\/\/[^"'\s)]+/);
+                  if (match && match[0].length > 20 && !match[0].includes('decryptvpn')) {
+                    return match[0];
+                  }
                 }
               }
               return null;
             }
 
-            // Main handler
-            function runAutomation() {
-              // First try to auto-click Continue
-              if (autoClickContinue()) {
-                console.log("Continue button clicked");
-              }
-
-              // Look for shortener destination
-              const dest = extractDestination();
-              if (dest) {
-                console.log("Destination found:", dest);
-                // You can either redirect the whole page or open in new tab
-                // window.location.replace(dest);   // full takeover
-                window.open(dest, '_self');        // or keep in same window
+            function run() {
+              if (findContinue()) {
+                setTimeout(run, 1800);
                 return;
               }
 
-              // If nothing found yet, keep checking
-              setTimeout(runAutomation, 1500);
+              const dest = extractUrl();
+              if (dest) {
+                console.log("Destination found →", dest);
+                window.location.replace(dest);
+                return;
+              }
+
+              setTimeout(run, 1200);
             }
 
-            // Start everything
-            setTimeout(runAutomation, 2000);
+            // Start automation
+            setTimeout(run, 1500);
 
-            // Also run on any dynamic changes
-            new MutationObserver(runAutomation).observe(document.documentElement, {
-              childList: true, subtree: true
-            });
+            // Extra observer for dynamic content
+            new MutationObserver(run).observe(document.documentElement, {childList: true, subtree: true});
           })();
         `;
-
-        doc.head.appendChild(automationScript);
-
+        iframe.contentDocument.head.appendChild(script);
       } catch(e) {
-        console.error("Cannot access iframe (probably cross-origin)", e);
-        // Fallback: just redirect normally
-        window.location.href = targetUrl;
+        console.log("Iframe access blocked, falling back...");
+        window.location.href = target;
       }
     };
   </script>
