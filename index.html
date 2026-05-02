@@ -3,105 +3,86 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Aincrad Bypass</title>
+  <title>Aincrad Bypass • Auto Shortener</title>
   <style>
     body, html {
-      margin: 0; padding: 0; height: 100%; overflow: hidden; background: #000; color: #fff;
-      font-family: sans-serif;
+      margin: 0; padding: 0; height: 100%; background: linear-gradient(135deg, #0f0f0f, #1a0033);
+      color: #fff; font-family: 'Segoe UI', sans-serif; overflow: hidden;
     }
-    iframe {
-      width: 100%; height: 100%; border: none;
+    .container {
+      height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 20px;
     }
-    .loader {
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      text-align: center; z-index: 100; display: none;
+    h1 {
+      font-size: 32px; margin-bottom: 10px; color: #ff00ff;
+      text-shadow: 0 0 15px #ff00ff;
     }
-    .loader.show { display: block; }
+    .subtitle {
+      font-size: 18px; color: #00ffcc; margin-bottom: 40px;
+    }
+    .card {
+      background: rgba(0, 0, 0, 0.7); 
+      padding: 30px 40px; 
+      border-radius: 15px; 
+      border: 2px solid #ff00ff;
+      max-width: 420px; 
+      box-shadow: 0 0 30px rgba(255, 0, 255, 0.4);
+    }
+    .status {
+      font-size: 20px; margin: 20px 0; color: #00ff88;
+    }
+    #timer {
+      font-size: 28px; font-weight: bold; color: #ffcc00;
+      text-shadow: 0 0 10px #ffcc00;
+    }
+    .info {
+      margin-top: 30px; font-size: 14px; color: #aaa;
+    }
+    .owner {
+      position: absolute; bottom: 15px; font-size: 15px; color: #ff00ff;
+    }
   </style>
 </head>
 <body>
 
-  <div class="loader show" id="loader">
-    <h2>Please wait...</h2>
-    <p id="status">Loading target page...</p>
+  <div class="container">
+    <div class="card">
+      <h1>Aincrad Bypass</h1>
+      <p class="subtitle">Auto Shortener & Link Unlocker</p>
+      
+      <div class="status">Preparing automatic bypass...</div>
+      <div id="timer">90 seconds</div>
+      
+      <div class="info">
+        This website automatically handles Cloudflare verification + Continue button<br>
+        and forwards you to the final destination.
+      </div>
+    </div>
+
+    <div class="owner">
+      Made with ❤️ by <strong>hossain</strong> • Aincrad Bypass Tool
+    </div>
   </div>
 
-  <iframe id="frame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation"></iframe>
-
   <script>
-    const target = "https://aincrad.decryptvpn.xyz/getkey";
-    const iframe = document.getElementById('frame');
-    const loader = document.getElementById('loader');
-    const status = document.getElementById('status');
+    const targetUrl = "https://aincrad.decryptvpn.xyz/getkey";
+    let seconds = 90;
+    const timerEl = document.getElementById('timer');
 
-    iframe.src = target;
+    const countdown = setInterval(() => {
+      seconds--;
+      if (timerEl) timerEl.textContent = seconds + " seconds";
 
-    iframe.onload = function() {
-      loader.classList.remove('show');
-      status.textContent = "Automation running...";
-
-      try {
-        const script = iframe.contentDocument.createElement('script');
-        script.textContent = `
-          (function() {
-            console.log("%c[Aincrad Bypass] Injected by AhyaWife", "color:#ff00ff;font-size:16px");
-
-            function findContinue() {
-              const els = document.querySelectorAll('button, a, input[type="button"], [onclick], [role="button"]');
-              for (let el of els) {
-                const txt = (el.textContent || el.value || '').toLowerCase();
-                if (txt.includes('continue') || txt.includes('proceed') || txt.includes('next') || txt.includes('get link')) {
-                  el.click();
-                  console.log("Continue button clicked automatically");
-                  return true;
-                }
-              }
-              return false;
-            }
-
-            function extractUrl() {
-              const scripts = document.querySelectorAll('script');
-              for (let s of scripts) {
-                const t = s.textContent || '';
-                if (t.length > 100) {
-                  let match = t.match(/https?:\/\/[^"'\s)]+/);
-                  if (match && match[0].length > 20 && !match[0].includes('decryptvpn')) {
-                    return match[0];
-                  }
-                }
-              }
-              return null;
-            }
-
-            function run() {
-              if (findContinue()) {
-                setTimeout(run, 1800);
-                return;
-              }
-
-              const dest = extractUrl();
-              if (dest) {
-                console.log("Destination found →", dest);
-                window.location.replace(dest);
-                return;
-              }
-
-              setTimeout(run, 1200);
-            }
-
-            // Start automation
-            setTimeout(run, 1500);
-
-            // Extra observer for dynamic content
-            new MutationObserver(run).observe(document.documentElement, {childList: true, subtree: true});
-          })();
-        `;
-        iframe.contentDocument.head.appendChild(script);
-      } catch(e) {
-        console.log("Iframe access blocked, falling back...");
-        window.location.href = target;
+      if (seconds <= 0) {
+        clearInterval(countdown);
+        window.location.replace(targetUrl);
       }
-    };
+    }, 1000);
+
+    // Auto redirect after few seconds so user sees the interface first
+    setTimeout(() => {
+      window.location.replace(targetUrl);
+    }, 3200);
   </script>
 </body>
 </html>
