@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loading...</title>
+  <style>
+    body, html { margin:0; padding:0; height:100%; overflow:hidden; background:#000; }
+    iframe { width:100%; height:100%; border:none; }
+    .loading {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      color: #fff; font-family: sans-serif; text-align: center; z-index: 10;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="loading" id="loader">
+    <div>Please wait while we prepare everything...</div>
+    <div id="status">Auto visiting target...</div>
+  </div>
+
+  <iframe id="myFrame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups" 
+          allow="fullscreen; clipboard-write"></iframe>
+
+  <script>
+    const targetUrl = "https://aincrad.decryptvpn.xyz/getkey";
+    const iframe = document.getElementById('myFrame');
+    const loader = document.getElementById('loader');
+
+    // Step 1: Load the target inside iframe
+    iframe.src = targetUrl;
+
+    // Step 2: Once iframe loads, inject our powerful automation script
+    iframe.onload = () => {
+      try {
+        const win = iframe.contentWindow;
+        const doc = iframe.contentDocument || win.document;
+
+        // Hide loader
+        loader.style.display = "none";
+
+        // === YOUR AUTOMATION SCRIPT (heavily improved from the userscript you gave) ===
+        const automationScript = document.createElement('script');
+        automationScript.textContent = `
+          (function() {
+            'use strict';
+
+            console.log("%cAhyaWife Automation Injected 🔥", "color:#ff00ff; font-size:18px");
+
+            // Function to find "Continue" button and auto click it
+            function autoClickContinue() {
+              const buttons = document.querySelectorAll('button, a, [role="button"]');
+              for (let btn of buttons) {
+                const text = (btn.textContent || btn.innerText || '').toLowerCase().trim();
+                if (text.includes('continue') || text.includes('proceed') || text.includes('next')) {
+                  console.log("Found Continue button, clicking...");
+                  setTimeout(() => btn.click(), 800);
+                  return true;
+                }
+              }
+              return false;
+            }
+
+            // Improved destination extractor
+            function extractDestination() {
+              const scripts = document.querySelectorAll('script');
+              for (let script of scripts) {
+                const txt = script.textContent || '';
+                if (txt.includes('destination') || txt.includes('url') || txt.includes('link')) {
+                  const match = txt.match(/["']?(https?:\/\/[^"']+)["']?/);
+                  if (match && match[1]) return match[1];
+                }
+              }
+              return null;
+            }
+
+            // Main handler
+            function runAutomation() {
+              // First try to auto-click Continue
+              if (autoClickContinue()) {
+                console.log("Continue button clicked");
+              }
+
+              // Look for shortener destination
+              const dest = extractDestination();
+              if (dest) {
+                console.log("Destination found:", dest);
+                // You can either redirect the whole page or open in new tab
+                // window.location.replace(dest);   // full takeover
+                window.open(dest, '_self');        // or keep in same window
+                return;
+              }
+
+              // If nothing found yet, keep checking
+              setTimeout(runAutomation, 1500);
+            }
+
+            // Start everything
+            setTimeout(runAutomation, 2000);
+
+            // Also run on any dynamic changes
+            new MutationObserver(runAutomation).observe(document.documentElement, {
+              childList: true, subtree: true
+            });
+          })();
+        `;
+
+        doc.head.appendChild(automationScript);
+
+      } catch(e) {
+        console.error("Cannot access iframe (probably cross-origin)", e);
+        // Fallback: just redirect normally
+        window.location.href = targetUrl;
+      }
+    };
+  </script>
+</body>
+</html>
